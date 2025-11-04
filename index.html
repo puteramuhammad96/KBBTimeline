@@ -1,49 +1,39 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>KBB Timeline — Pro Amber (Single File)</title>
-
-<!-- Theme CSS (dark + amber) -->
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KBB Timeline — All-in-One (Offline)</title>
 <style>
-:root{
-  --bg:#0a0a0a;--panel:#121212;--ink:#e5e5e5;--muted:#9ca3af;
-  --amber:#fbbf24;--amber-600:#f59e0b;--amber-700:#d97706;
-  --card:#18181b;--border:#27272a;--red:#ef4444;
-}
-*{box-sizing:border-box}html,body{height:100%}
-body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:var(--bg);color:var(--ink)}
+:root{--bg:#0a0a0a;--panel:#121212;--ink:#e5e5e5;--muted:#9ca3af;--amber:#fbbf24;--amber600:#f59e0b;--border:#27272a;--red:#ef4444}
+*{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--bg);color:var(--ink)}
 .container{max-width:1200px;margin:0 auto;padding:24px}
 .header{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
-.h-title{font-size:28px;font-weight:700;letter-spacing:-.01em}
-.h-sub{color:var(--muted)}
+.h-title{font-size:28px;font-weight:700;letter-spacing:-.01em}.h-sub{color:var(--muted)}
 .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .chip{background:rgba(251,191,36,.12);color:var(--amber);padding:6px 10px;border-radius:999px;border:1px solid rgba(251,191,36,.25);font-size:13px}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px}
-.grid{display:grid;grid-template-columns:1.5fr .5fr;gap:12px}
+.button{background:#0b0b0b;border:1px solid var(--border);color:var(--ink);padding:8px 12px;border-radius:10px;cursor:pointer}
+.button.active{background:#161616;color:#fff}
+.panel{background:#121212;border:1px solid var(--border);border-radius:16px;padding:12px}
+.gridhead{display:grid;grid-template-columns:1.5fr .5fr;gap:12px}
 .input{width:100%;padding:10px;border-radius:12px;background:#0b0b0b;border:1px solid var(--border);color:var(--ink);outline:none}
 .input:focus{border-color:var(--amber)}
-.btns{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.btns button{background:#0b0b0b;color:var(--ink);padding:8px 12px;border:0;cursor:pointer}
-.btns button.active{background:#161616;color:#fff}
-.legend{font-size:12px;color:var(--muted);margin-top:6px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;position:relative}
-.gantt-wrap{overflow:auto;border-radius:12px;border:1px solid var(--border);position:relative;min-height:360px}
-.gtaskblue{background:linear-gradient(90deg,#6b7280,#4b5563)!important}
-.gtaskdone{background:linear-gradient(90deg,var(--amber),var(--amber-600))!important;border:1px solid rgba(251,191,36,.3)!important}
-.tooltip{position:absolute;background:#111;border:1px solid #333;color:#fff;font-size:13px;
-  padding:8px 10px;border-radius:8px;max-width:260px;z-index:1000;box-shadow:0 0 8px rgba(0,0,0,.5)}
-.tooltip button{margin-top:6px;padding:4px 8px;border:0;border-radius:6px;background:var(--amber-700);color:#fff;cursor:pointer;font-size:12px}
-.tooltip button:hover{background:var(--amber-600)}
-.reset-btn{background:none;border:1px solid rgba(251,191,36,.25);color:var(--amber);padding:6px 10px;border-radius:8px;font-size:13px;cursor:pointer}
-.reset-btn:hover{background:rgba(251,191,36,.1)}
-.today-line{position:absolute;width:2px;background:var(--red);height:100%;top:0;z-index:50;pointer-events:none}
-.fallback{color:var(--muted);font-size:14px;text-align:center;padding:40px}
+.card{background:#18181b;border:1px solid var(--border);border-radius:16px;padding:16px}
+.legend{font-size:12px;color:var(--muted);margin-top:8px}
+.gantt{border:1px solid var(--border);border-radius:12px;overflow:auto;position:relative;min-height:360px}
+.table{display:grid;grid-template-columns:320px 1fr;min-width:860px}
+.left{position:sticky;left:0;background:#0f0f0f;border-right:1px solid var(--border);z-index:2}
+.lrow{padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow.group{font-weight:700}
+.right{position:relative}
+.rh{position:sticky;top:0;background:#0f0f0f;border-bottom:1px solid var(--border);z-index:1}
+.rgrid{position:relative}
+.rrow{height:32px;border-bottom:1px dashed #1f1f1f}
+.monthbar,.weekbar,.daybar{display:flex;align-items:center;font-size:12px;color:#cbd5e1;border-bottom:1px solid #1f1f1f}
+.tl{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:5;pointer-events:none}
+.bar{position:absolute;height:22px;border-radius:6px;transform:translateY(-50%);cursor:pointer;color:#0b0b0b;font-size:12px;display:flex;align-items:center;justify-content:center;padding:0 6px;border:1px solid #3f3f46;background:linear-gradient(90deg,#6b7280,#4b5563)}
+.bar.done{background:linear-gradient(90deg,var(--amber),var(--amber600));border-color:rgba(251,191,36,.35)}
+.tooltip{position:absolute;background:#111;border:1px solid #333;color:#fff;font-size:12px;padding:8px 10px;border-radius:8px;max-width:280px;z-index:10;box-shadow:0 0 8px rgba(0,0,0,.45)}
+.tooltip button{margin-top:6px;padding:4px 8px;border:0;border-radius:6px;background:#d97706;color:#fff;cursor:pointer}
+.small{font-size:12px;color:#9ca3af}
 </style>
-
-<!-- Try local CSS first; JS will add CDN CSS if needed -->
-<link id="jsgantt-css" rel="stylesheet" href="./libs/jsgantt-improved.min.css">
 </head>
 <body>
 <div class="container">
@@ -53,209 +43,233 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robot
       <div class="h-sub">Kuala Terengganu • Nov–Dec 2025</div>
     </div>
     <div class="controls">
-      <div class="chip" id="overall">Overall: 0%</div>
-      <button class="reset-btn" id="resetBtn">🔁 Reset Progress</button>
-      <div class="btns" id="scale">
-        <button data-format="day" class="active">Day</button>
-        <button data-format="week">Week</button>
-        <button data-format="month">Month</button>
+      <div class="chip" id="overallChip">Overall: 0%</div>
+      <button class="button" id="resetBtn">🔁 Reset Progress</button>
+      <div class="button-group">
+        <button class="button active" data-scale="day">Day</button>
+        <button class="button" data-scale="week">Week</button>
+        <button class="button" data-scale="month">Month</button>
       </div>
     </div>
   </div>
 
-  <div class="grid" style="margin-top:16px">
-    <div class="panel">
-      <div style="font-size:12px;color:#9ca3af">Cari task</div>
-      <input id="search" class="input" placeholder="Contoh: Ceiling, Signage, Plumbing"/>
+  <div class="gridhead">
+    <div class="panel"><div class="small">Cari task</div>
+      <input id="search" class="input" placeholder="Contoh: Ceiling, Signage, Plumbing">
     </div>
     <div class="panel" style="display:flex;align-items:center;justify-content:space-between">
-      <div>
-        <div style="font-size:12px;color:#9ca3af">Status</div>
-        <div style="font-size:20px;color:#fbbf24" id="statusNum">0%</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:12px;color:#9ca3af">Total Duration</div>
-        <div style="font-size:20px" id="duration">—</div>
-      </div>
+      <div><div class="small">Status</div><div style="font-size:20px;color:var(--amber)" id="statusNum">0%</div></div>
+      <div style="text-align:right"><div class="small">Total Duration</div><div style="font-size:20px" id="duration">—</div></div>
     </div>
   </div>
 
-  <div class="card" style="margin-top:12px;">
-    <div class="gantt-wrap">
-      <div class="today-line" id="todayLine"></div>
-      <div class="gantt" id="GanttChartDIV"><div class="fallback">Memuat carta Gantt…</div></div>
-    </div>
+  <div class="card" style="margin-top:12px">
+    <div id="gantt" class="gantt"></div>
     <div class="legend">🚩 Garis merah = tarikh hari ini • Hover/klik bar untuk info • Klik untuk tandakan siap • Reset untuk kosongkan status.</div>
   </div>
 </div>
 
-<!-- Try local JS first; fallback to CDN v2.8.9 if local missing -->
 <script>
-(function loadJSGantt(){
-  function injectCDN(){
-    // add CDN CSS if local css didn't load
-    if(!document.querySelector('link[data-cdn-css]')){
-      const l=document.createElement('link');
-      l.rel='stylesheet'; l.href='https://cdn.jsdelivr.net/npm/jsgantt-improved@2.8.9/dist/jsgantt.css';
-      l.setAttribute('data-cdn-css','1'); document.head.appendChild(l);
-    }
-    const s=document.createElement('script');
-    s.src='https://cdn.jsdelivr.net/npm/jsgantt-improved@2.8.9/dist/jsgantt.min.js';
-    s.onload=initApp;
-    s.onerror=function(){ document.getElementById('GanttChartDIV').innerHTML='<div class="fallback">⚠️ Carta gagal dimuat. Sila sambung internet atau letak fail <code>jsgantt-improved.min.js</code> & <code>.css</code> dalam folder <code>./libs/</code>.</div>'; };
-    document.body.appendChild(s);
-  }
-  // try local
-  const s=document.createElement('script');
-  s.src='./libs/jsgantt-improved.min.js';
-  s.onload=initApp;
-  s.onerror=injectCDN;
-  document.body.appendChild(s);
-})();
-</script>
-
-<script>
-/* ====== DATA TASK PENUH ====== */
+/* ================= DATA ================= */
 const RAW = [
-  ["0","KBB STEAKHOUSE, KUALA TERENGGANU","2025-11-06","2025-12-04",0,1,"0",""],
-  ["1","Site Preparation","2025-11-06","2025-11-07",0,0,"0",""],
-  ["2","Manufacture Site Hoarding","2025-11-06","2025-11-06",0,0,"1",""],
-  ["3","Install Site Hoarding","2025-11-07","2025-11-07",0,0,"1","2"],
-  ["4","Circular Wing (Cover Dining & Toilet)","2025-11-08","2025-12-04",0,1,"0","3"],
-  ["5","Site Delivery","2025-11-08","2025-11-11",0,0,"4","3"],
-  ["6","Marking Demolition Items/Location","2025-11-08","2025-11-08",0,0,"4","5"],
-  ["7","Demolish Floor Finish, Handwash & Steel Cage","2025-11-08","2025-11-10",0,0,"4","6"],
-  ["8","Erect Brickwall Exterior","2025-11-08","2025-11-13",0,0,"4","7,5"],
-  ["9","Plumbing Line for Handwash Area","2025-11-10","2025-11-11",0,0,"4","7"],
-  ["10","Erect Bricks at Toilet (Set Pipe)","2025-11-11","2025-11-12",0,0,"4","9"],
-  ["11","Erect Brickwalls at Photo Area","2025-11-12","2025-11-14",0,0,"4","10"],
-  ["12","Install Fittings at Toilet","2025-11-13","2025-11-14",0,0,"4","8"],
-  ["13","Install Tiles at Toilet","2025-11-14","2025-11-16",0,0,"4","12"],
-  ["14","Brickwalls & Top at Middle Column","2025-11-14","2025-11-16",0,0,"4","11"],
-  ["15","Floor Tiles at Dining Area","2025-11-16","2025-11-20",0,0,"4","14"],
-  ["16","Tiles at Handwash Area","2025-11-16","2025-11-18",0,0,"4","13"],
-  ["17","Measurement for Glass Door","2025-11-13","2025-11-14",0,0,"4","8"],
-  ["23","Ceiling Work (Frame)","2025-11-18","2025-11-19",0,0,"4","16"],
-  ["18","Set Out & Material – Electrical","2025-11-19","2025-11-21",0,0,"4","23"],
-  ["19","Wiring & Piping Relocation","2025-11-21","2025-11-23",0,0,"4","18"],
-  ["20","Set Out & Material – Aircond","2025-11-23","2025-11-24",0,0,"4","19"],
-  ["21","Aircond Installation","2025-11-24","2025-11-25",0,0,"4","20"],
-  ["37","Install Ceiling","2025-11-23","2025-11-25",0,0,"30","36,35"],
-  ["22","Plastering Work","2025-11-25","2025-11-29",0,0,"4","15,19,37"],
-  ["24","Ceiling Finishes","2025-11-25","2025-11-26",0,0,"4","21,23,39"],
-  ["40","Paint Work (Main Wing)","2025-11-25","2025-11-28",0,0,"30","37"],
-  ["41","Install Cabinetry (Main Wing)","2025-11-28","2025-11-29",0,0,"30","40"],
-  ["25","Paint Work (Circular Wing)","2025-11-29","2025-12-02",0,0,"4","22,24"],
-  ["26","Install Cabinetry (Circular Wing)","2025-11-29","2025-11-30",0,0,"4","41"],
-  ["27","Install Steel Structure","2025-11-30","2025-12-02",0,0,"4","26"],
-  ["28","Install Signage (Circular Wing)","2025-12-02","2025-12-04",0,0,"4","25,27"],
-  ["29","Install Door","2025-12-02","2025-12-04",0,0,"4","28,17"],
-  ["30","Main Wing","2025-11-16","2025-12-04",0,1,"0",""],
-  ["31","Demolish Floor Finish (Main)","2025-11-16","2025-11-19",0,0,"30","15"],
-  ["32","Demolish Wall Finish to Exposed Brick","2025-11-16","2025-11-19",0,0,"30","31"],
-  ["33","Demolish Ceiling (Main)","2025-11-16","2025-11-19",0,0,"30","32"],
-  ["34","Set Out & Material – Electrical (Main)","2025-11-19","2025-11-21",0,0,"30","31,32,33"],
-  ["35","Wiring & Piping Relocation (Main)","2025-11-21","2025-11-23",0,0,"30","34"],
-  ["36","Wall Mod (VIP Room – Shera)","2025-11-19","2025-11-22",0,0,"30","31,32,33"],
-  ["38","Outdoor Touch Up (Demo/Render/Gravel)","2025-11-19","2025-11-23",0,0,"30","23"],
-  ["39","Tiles at Foyer","2025-11-23","2025-11-25",0,0,"30","38"],
-  ["42","Install Signage (Main)","2025-12-02","2025-12-04",0,0,"30","41,28"]
+ ["0","KBB STEAKHOUSE, KUALA TERENGGANU","2025-11-06","2025-12-04",0,1,"0",""],
+ ["1","Site Preparation","2025-11-06","2025-11-07",0,0,"0",""],
+ ["2","Manufacture Site Hoarding","2025-11-06","2025-11-06",0,0,"1",""],
+ ["3","Install Site Hoarding","2025-11-07","2025-11-07",0,0,"1","2"],
+ ["4","Circular Wing (Cover Dining & Toilet)","2025-11-08","2025-12-04",0,1,"0","3"],
+ ["5","Site Delivery","2025-11-08","2025-11-11",0,0,"4","3"],
+ ["6","Marking Demolition Items/Location","2025-11-08","2025-11-08",0,0,"4","5"],
+ ["7","Demolish Floor Finish, Handwash & Steel Cage","2025-11-08","2025-11-10",0,0,"4","6"],
+ ["8","Erect Brickwall Exterior","2025-11-08","2025-11-13",0,0,"4","7,5"],
+ ["9","Plumbing Line for Handwash Area","2025-11-10","2025-11-11",0,0,"4","7"],
+ ["10","Erect Bricks at Toilet (Set Pipe)","2025-11-11","2025-11-12",0,0,"4","9"],
+ ["11","Erect Brickwalls at Photo Area","2025-11-12","2025-11-14",0,0,"4","10"],
+ ["12","Install Fittings at Toilet","2025-11-13","2025-11-14",0,0,"4","8"],
+ ["13","Install Tiles at Toilet","2025-11-14","2025-11-16",0,0,"4","12"],
+ ["14","Brickwalls & Top at Middle Column","2025-11-14","2025-11-16",0,0,"4","11"],
+ ["15","Floor Tiles at Dining Area","2025-11-16","2025-11-20",0,0,"4","14"],
+ ["16","Tiles at Handwash Area","2025-11-16","2025-11-18",0,0,"4","13"],
+ ["17","Measurement for Glass Door","2025-11-13","2025-11-14",0,0,"4","8"],
+ ["23","Ceiling Work (Frame)","2025-11-18","2025-11-19",0,0,"4","16"],
+ ["18","Set Out & Material – Electrical","2025-11-19","2025-11-21",0,0,"4","23"],
+ ["19","Wiring & Piping Relocation","2025-11-21","2025-11-23",0,0,"4","18"],
+ ["20","Set Out & Material – Aircond","2025-11-23","2025-11-24",0,0,"4","19"],
+ ["21","Aircond Installation","2025-11-24","2025-11-25",0,0,"4","20"],
+ ["37","Install Ceiling","2025-11-23","2025-11-25",0,0,"30","36,35"],
+ ["22","Plastering Work","2025-11-25","2025-11-29",0,0,"4","15,19,37"],
+ ["24","Ceiling Finishes","2025-11-25","2025-11-26",0,0,"4","21,23,39"],
+ ["40","Paint Work (Main Wing)","2025-11-25","2025-11-28",0,0,"30","37"],
+ ["41","Install Cabinetry (Main Wing)","2025-11-28","2025-11-29",0,0,"30","40"],
+ ["25","Paint Work (Circular Wing)","2025-11-29","2025-12-02",0,0,"4","22,24"],
+ ["26","Install Cabinetry (Circular Wing)","2025-11-29","2025-11-30",0,0,"4","41"],
+ ["27","Install Steel Structure","2025-11-30","2025-12-02",0,0,"4","26"],
+ ["28","Install Signage (Circular Wing)","2025-12-02","2025-12-04",0,0,"4","25,27"],
+ ["29","Install Door","2025-12-02","2025-12-04",0,0,"4","28,17"],
+ ["30","Main Wing","2025-11-16","2025-12-04",0,1,"0",""],
+ ["31","Demolish Floor Finish (Main)","2025-11-16","2025-11-19",0,0,"30","15"],
+ ["32","Demolish Wall Finish to Exposed Brick","2025-11-16","2025-11-19",0,0,"30","31"],
+ ["33","Demolish Ceiling (Main)","2025-11-16","2025-11-19",0,0,"30","32"],
+ ["34","Set Out & Material – Electrical (Main)","2025-11-19","2025-11-21",0,0,"30","31,32,33"],
+ ["35","Wiring & Piping Relocation (Main)","2025-11-21","2025-11-23",0,0,"30","34"],
+ ["36","Wall Mod (VIP Room – Shera)","2025-11-19","2025-11-22",0,0,"30","31,32,33"],
+ ["38","Outdoor Touch Up (Demo/Render/Gravel)","2025-11-19","2025-11-23",0,0,"30","23"],
+ ["39","Tiles at Foyer","2025-11-23","2025-11-25",0,0,"30","38"],
+ ["42","Install Signage (Main)","2025-12-02","2025-12-04",0,0,"30","41,28"]
 ];
+/* ================ UTIL ================ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const parse=d=>new Date(d+"T00:00:00"); const fmt=n=>n.toString().padStart(2,"0");
+const days=(a,b)=>Math.max(1,Math.round((parse(b)-parse(a))/86400000));
+const diffDays=(a,b)=>Math.round((parse(b)-parse(a))/86400000);
+const startProj=RAW.find(t=>t[0]==="0")[2], endProj=RAW.find(t=>t[0]==="0")[3];
+const STORAGE_KEY="kbb_allinone_done";
+let doneSet=new Set(JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"));
+let SCALE="day", QUERY="";
 
-/* ====== APP JS ====== */
-const STORAGE_KEY='kbb_pro_done';
-let doneSet=new Set(JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'));
-let currentFormat='day', currentQuery='';
+const nameMap={}; RAW.forEach(t=>nameMap[t[0]]=t[1]);
+const children=id=>RAW.filter(t=>t[6]==id);
+const isGroup=id=>{
+  const r=RAW.find(t=>t[0]==id); return r? r[5]===1 : false;
+};
+const groupDone=id=>{
+  const kids=children(id);
+  return kids.length>0 && kids.every(t=> t[5]===1 ? groupDone(t[0]) : doneSet.has(t[0]));
+};
+const projDays = diffDays(startProj,endProj)+1;
+const PX =()=> SCALE==="day"?30 : (SCALE==="week"?10:4); // px / day
 
-function initApp(){
-  // Build name map for group label
-  window.nameMap={}; RAW.forEach(t=>nameMap[t[0]]=t[1]);
+/* ================ RENDER ================ */
+function render(){
+  const gantt=$("#gantt"); gantt.innerHTML="";
+  const table=document.createElement("div"); table.className="table"; gantt.appendChild(table);
 
-  function saveSet(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...doneSet])); }
-  function clearSet(){ doneSet.clear(); saveSet(); }
-  function daysBetween(a,b){ return Math.max(1, Math.round((new Date(b)-new Date(a))/86400000)); }
-  function computeOverall(){
-    const leaves = RAW.filter(t=>t[5]===0);
-    return Math.round(100 * leaves.filter(t=>doneSet.has(t[0])).length / (leaves.length||1));
-  }
-  function childrenOf(id){ return RAW.filter(t=>t[6]==id); }
-  function isGroupDone(id){
-    const kids=childrenOf(id);
-    return kids.length>0 && kids.every(t => t[5]==1 ? isGroupDone(t[0]) : doneSet.has(t[0]));
-  }
+  // LEFT
+  const left=document.createElement("div"); left.className="left"; table.appendChild(left);
+  // RIGHT
+  const right=document.createElement("div"); right.className="right"; table.appendChild(right);
 
-  function render(){
-    const el=document.getElementById('GanttChartDIV'); el.innerHTML='';
-    const g=new JSGantt.GanttChart(el,currentFormat);
-    g.setOptions({vShowComp:1,vShowStartDate:1,vShowEndDate:1,vDayColWidth:30,vWeekColWidth:120,vMonthColWidth:180,vUseSort:0});
-    RAW.filter(t=>t[1].toLowerCase().includes(currentQuery.toLowerCase())).forEach(t=>{
-      const[id,name,start,end,prog,group,parent,dep]=t;
-      const done=doneSet.has(id);
-      const gDone=(group==1)?isGroupDone(id):false;
-      const bar=(done||gDone)?'gtaskdone':(group?'ggroupblack':'gtaskblue');
-      g.AddTaskItem(new JSGantt.TaskItem(id,name,start,end,bar,'',0,'',prog,group,parent,1,dep,''));
-    });
-    g.Draw();
+  // Header timeline
+  const rh=document.createElement("div"); rh.className="rh";
+  rh.appendChild(buildHeader());
+  right.appendChild(rh);
 
-    // header summaries
-    const proj=RAW.find(t=>t[0]==='0');
-    if(proj) document.getElementById('duration').innerText = daysBetween(proj[2],proj[3])+' hari';
-    const ov=computeOverall(); document.getElementById('overall').innerText='Overall: '+ov+'%'; document.getElementById('statusNum').innerText=ov+'%';
+  const rgrid=document.createElement("div"); rgrid.className="rgrid"; right.appendChild(rgrid);
 
-    // bar interactions (tooltip + toggle)
-    RAW.forEach(t=>{
-      const bar=document.getElementById('taskbar_'+t[0]);
-      if(!bar) return;
-      bar.style.cursor='pointer';
-      bar.addEventListener('mouseenter',ev=>showTip(ev,t));
-      bar.addEventListener('mouseleave',removeTips);
-      bar.addEventListener('click',ev=>{ toggleDone(t[0]); showTip(ev,t); });
-    });
+  // Today line
+  const tl=document.createElement("div"); tl.className="tl"; rgrid.appendChild(tl);
+  const today=new Date(); tl.style.left = (Math.floor((today-parse(startProj))/86400000)*PX())+"px";
 
-    drawTodayLine();
-  }
+  const filtered = RAW.filter(t=>t[1].toLowerCase().includes(QUERY.toLowerCase()));
+  const rows = filtered; // simple filter
 
-  function toggleDone(id){ if(doneSet.has(id)) doneSet.delete(id); else doneSet.add(id); saveSet(); render(); }
-  function removeTips(){ document.querySelectorAll('.tooltip').forEach(x=>x.remove()); }
-  function showTip(ev,t){
-    removeTips();
-    const[id,name,start,end,prog,group,parent,dep]=t;
-    const dur=daysBetween(start,end);
-    const div=document.createElement('div'); div.className='tooltip';
-    div.innerHTML='<strong>'+name+'</strong><br>'+
-      '📅 '+start+' → '+end+' ('+dur+' hari)<br>'+
-      '🧱 Group: '+(nameMap[parent]||'-')+'<br>'+
-      '🔗 Dep: '+(dep||'-')+'<br>'+
-      '<button id="toggleBtn">'+(doneSet.has(id)?'Mark as Not Done':'Mark Done')+'</button>';
-    document.body.appendChild(div);
-    const r=ev.target.getBoundingClientRect();
-    div.style.left=(r.left+window.scrollX+16)+'px';
-    div.style.top=(r.top+window.scrollY-16)+'px';
-    div.querySelector('#toggleBtn').onclick=()=>{ toggleDone(id); };
-    setTimeout(()=>document.addEventListener('click',closeTip,true),10);
-  }
-  function closeTip(e){ if(!e.target.closest('.tooltip')){ removeTips(); document.removeEventListener('click',closeTip,true); } }
+  // Build rows + bars
+  rows.forEach((t,idx)=>{
+    const [id,name,s,e,prog,group,parent,dep]=t;
+    // left label
+    const lr=document.createElement("div"); lr.className="lrow"; if(group) lr.classList.add("group");
+    lr.textContent=name; left.appendChild(lr);
 
-  function drawTodayLine(){
-    const line=document.getElementById('todayLine');
-    const start=new Date(RAW[0][2]); const today=new Date();
-    const dayWidth=(currentFormat==='month')?6:(currentFormat==='week'?18:30);
-    const diff=Math.floor((today-start)/86400000);
-    line.style.left=(diff*dayWidth)+'px';
-  }
+    // right grid row
+    const rr=document.createElement("div"); rr.className="rrow"; rgrid.appendChild(rr);
 
-  // events
-  document.getElementById('search').addEventListener('input',e=>{ currentQuery=e.target.value; render(); });
-  document.querySelectorAll('#scale button').forEach(b=>{
-    b.addEventListener('click',()=>{
-      document.querySelectorAll('#scale button').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active'); currentFormat=b.dataset.format; render();
+    // bar
+    const bar=document.createElement("div"); bar.className="bar";
+    const leftPx = diffDays(startProj,s)*PX();
+    const widthPx = days(s,e)*PX();
+    bar.style.left = leftPx+"px";
+    bar.style.top  = (rr.offsetTop + rr.offsetHeight/2)+"px"; // provisional
+    bar.style.width = widthPx+"px";
+    bar.dataset.id=id;
+    const done = doneSet.has(id) || (group && groupDone(id));
+    if(done) bar.classList.add("done");
+    rgrid.appendChild(bar);
+
+    // after append we can align vertically exactly
+    const top = rr.offsetTop + rr.offsetHeight/2;
+    bar.style.top = top+"px";
+
+    // tooltip + toggle
+    bar.addEventListener("mouseenter",ev=>showTip(ev,t));
+    bar.addEventListener("mouseleave",hideTips);
+    bar.addEventListener("click",ev=>{
+      if(group) return; // toggle only leaf tasks
+      if(doneSet.has(id)) doneSet.delete(id); else doneSet.add(id);
+      localStorage.setItem(STORAGE_KEY,JSON.stringify([...doneSet]));
+      render();
+      showTip(ev,t);
     });
   });
-  document.getElementById('resetBtn').addEventListener('click',()=>{ if(confirm('Reset semua progress?')){ localStorage.removeItem(STORAGE_KEY); doneSet=new Set(); render(); } });
 
-  render();
+  // overall/duration
+  $("#duration").textContent = (diffDays(startProj,endProj)+1)+" hari";
+  const leaves=RAW.filter(t=>t[5]===0);
+  const pct=Math.round(100*leaves.filter(t=>doneSet.has(t[0])).length/(leaves.length||1));
+  $("#overallChip").textContent="Overall: "+pct+"%";
+  $("#statusNum").textContent=pct+"%";
 }
+
+function buildHeader(){
+  const wrap=document.createElement("div");
+  const px=PX(), totalW = (diffDays(startProj,endProj)+1)*px;
+
+  // MONTHS
+  const mbar=document.createElement("div"); mbar.className="monthbar"; mbar.style.width=totalW+"px";
+  mbar.style.gap="0";
+  let cur=new Date(startProj+"T00:00:00"), last=new Date(endProj+"T00:00:00");
+  while(cur<=last){
+    const y=cur.getFullYear(), m=cur.getMonth()+1;
+    const monthStart=new Date(y,m-1,1), next=new Date(y,m,1);
+    const segEnd = next>last? new Date(last) : new Date(next-86400000);
+    const daysInSeg= Math.min(diffDays(cur,segEnd)+1, diffDays(cur,next.toISOString().slice(0,10))+1);
+    const seg=document.createElement("div"); seg.style.width=(daysInSeg*px)+"px"; seg.style.borderRight="1px solid #1f1f1f"; seg.style.padding="6px 8px";
+    seg.textContent = new Intl.DateTimeFormat('en',{month:'short',year:'2-digit'}).format(cur);
+    mbar.appendChild(seg);
+    cur=next;
+  }
+  wrap.appendChild(mbar);
+
+  // WEEKS or DAYS guide (thin)
+  const guide=document.createElement("div"); guide.className="weekbar"; guide.style.width=totalW+"px";
+  const unit = SCALE==="day"?1 : (SCALE==="week"?7:30);
+  for(let i=0;i<Math.ceil((diffDays(startProj,endProj)+1)/unit);i++){
+    const seg=document.createElement("div"); seg.style.width=(unit*px)+"px"; seg.style.borderRight="1px solid #1f1f1f"; seg.style.padding="4px 6px";
+    seg.textContent = SCALE==="day"? (i+1) : (SCALE==="week"?"W"+(i+1):"");
+    guide.appendChild(seg);
+  }
+  wrap.appendChild(guide);
+  return wrap;
+}
+
+function hideTips(){ $$(".tooltip").forEach(el=>el.remove()); }
+function showTip(ev,t){
+  hideTips();
+  const [id,name,s,e,prog,group,parent,dep]=t;
+  const dur=days(s,e);
+  const tip=document.createElement("div"); tip.className="tooltip";
+  tip.innerHTML = `<strong>${name}</strong><br>
+    📅 ${s} → ${e} (${dur} hari)<br>
+    🧱 Group: ${nameMap[parent]||"-"}<br>
+    🔗 Dep: ${dep||"-"}<br>` + 
+    (!group? `<button>${doneSet.has(id)?'Mark as Not Done':'Mark Done'}</button>`:"<span class='small'>Group auto-complete bila semua subtask siap</span>");
+  document.body.appendChild(tip);
+  const r=ev.target.getBoundingClientRect();
+  tip.style.left=(r.left+window.scrollX+12)+"px";
+  tip.style.top=(r.top+window.scrollY-10)+"px";
+  const btn=tip.querySelector("button");
+  if(btn){
+    btn.onclick=()=>{ if(doneSet.has(id)) doneSet.delete(id); else doneSet.add(id); localStorage.setItem(STORAGE_KEY,JSON.stringify([...doneSet])); render(); };
+  }
+}
+
+/* ================ EVENTS ================ */
+$("#search").addEventListener("input",e=>{ QUERY=e.target.value; render(); });
+$$(".button-group .button").forEach(b=>b.addEventListener("click",()=>{
+  $$(".button-group .button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active"); SCALE=b.dataset.scale; render();
+}));
+$("#resetBtn").addEventListener("click",()=>{ if(confirm("Reset semua progress?")){ localStorage.removeItem(STORAGE_KEY); doneSet=new Set(); render(); }});
+
+/* initial draw */
+render();
 </script>
-</body>
-</html>
+</body></html>
