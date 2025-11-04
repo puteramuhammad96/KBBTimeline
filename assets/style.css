@@ -1,0 +1,33 @@
+
+:root{
+  --bg:#0a0a0a;--panel:#121212;--ink:#e5e5e5;--muted:#9ca3af;
+  --amber:#fbbf24;--amber-600:#f59e0b;--amber-700:#d97706;
+  --card:#18181b;--border:#27272a;--red:#ef4444;
+}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:var(--bg);color:var(--ink)}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.header{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.h-title{font-size:28px;font-weight:700;letter-spacing:-.01em}
+.h-sub{color:var(--muted)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{background:rgba(251,191,36,.12);color:var(--amber);padding:6px 10px;border-radius:999px;border:1px solid rgba(251,191,36,.25);font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px}
+.grid{display:grid;grid-template-columns:1.5fr .5fr;gap:12px}
+.input{width:100%;padding:10px;border-radius:12px;background:#0b0b0b;border:1px solid var(--border);color:var(--ink);outline:none}
+.input:focus{border-color:var(--amber)}
+.btns{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.btns button{background:#0b0b0b;color:var(--ink);padding:8px 12px;border:0;cursor:pointer}
+.btns button.active{background:#161616;color:#fff}
+.legend{font-size:12px;color:var(--muted);margin-top:6px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;position:relative}
+.gantt-wrap{overflow:auto;border-radius:12px;border:1px solid var(--border);position:relative;min-height:360px}
+.gtaskblue{background:linear-gradient(90deg,#6b7280,#4b5563)!important}
+.gtaskdone{background:linear-gradient(90deg,var(--amber),var(--amber-600))!important;border:1px solid rgba(251,191,36,.3)!important}
+.tooltip{position:absolute;background:#111;border:1px solid #333;color:#fff;font-size:13px;
+  padding:8px 10px;border-radius:8px;max-width:260px;z-index:1000;box-shadow:0 0 8px rgba(0,0,0,.5);}
+.tooltip button{margin-top:6px;padding:4px 8px;border:0;border-radius:6px;background:var(--amber-700);color:#fff;cursor:pointer;font-size:12px}
+.tooltip button:hover{background:var(--amber-600)}
+.reset-btn{background:none;border:1px solid rgba(251,191,36,.25);color:var(--amber);padding:6px 10px;border-radius:8px;font-size:13px;cursor:pointer}
+.reset-btn:hover{background:rgba(251,191,36,.1)}
+.today-line{position:absolute;width:2px;background:var(--red);height:100%;top:0;z-index:50;pointer-events:none}
