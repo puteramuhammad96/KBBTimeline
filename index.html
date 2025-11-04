@@ -1,0 +1,96 @@
+
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>KBB Timeline — Pro Amber v2 Fixed</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsgantt-improved@2.9.3/dist/jsgantt.css">
+<link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="h-title">KBB Steakhouse Project Timeline</div>
+      <div class="h-sub">Kuala Terengganu • Nov–Dec 2025</div>
+    </div>
+    <div class="controls">
+      <div class="chip" id="overall">Overall: 0%</div>
+      <button class="reset-btn" id="resetBtn">🔁 Reset Progress</button>
+      <div class="btns" id="scale">
+        <button data-format="day" class="active">Day</button>
+        <button data-format="week">Week</button>
+        <button data-format="month">Month</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top:16px">
+    <div class="panel">
+      <div style="font-size:12px;color:#9ca3af">Cari task</div>
+      <input id="search" class="input" placeholder="Contoh: Ceiling, Signage, Plumbing"/>
+    </div>
+    <div class="panel" style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:12px;color:#9ca3af">Status</div>
+        <div style="font-size:20px;color:#fbbf24" id="statusNum">0%</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:#9ca3af">Total Duration</div>
+        <div style="font-size:20px" id="duration">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px;">
+    <div class="gantt-wrap">
+      <div class="today-line" id="todayLine"></div>
+      <div class="gantt" id="GanttChartDIV"></div>
+    </div>
+    <div class="legend">🚩 Garis merah = tarikh hari ini • Klik bar task untuk lihat info / tandakan siap.</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsgantt-improved@2.9.3/dist/jsgantt.js"></script>
+<script>
+const RAW = [["0", "KBB STEAKHOUSE, KUALA TERENGGANU", "2025-11-06", "2025-12-04", 0, 1, "0", ""], ["4", "Circular Wing", "2025-11-08", "2025-12-04", 0, 1, "0", ""], ["30", "Main Wing", "2025-11-16", "2025-12-04", 0, 1, "0", ""], ["1", "Site Preparation", "2025-11-06", "2025-11-07", 0, 0, "0", ""], ["15", "Floor Tiles at Dining Area", "2025-11-16", "2025-11-20", 0, 0, "4", "14"], ["25", "Paint Work (Circular Wing)", "2025-11-29", "2025-12-02", 0, 0, "4", "22,24"]];
+const STORAGE_KEY = 'kbb_v2fixed_done';
+let doneSet = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'));
+let currentFormat='day', currentQuery='';
+
+function saveSet(){localStorage.setItem(STORAGE_KEY,JSON.stringify([...doneSet]));}
+function clearSet(){doneSet.clear();saveSet();}
+function daysBetween(a,b){return Math.max(1,Math.round((new Date(b)-new Date(a))/86400000));}
+function computeOverall(){const leaves=RAW.filter(t=>t[5]===0);return Math.round(100*leaves.filter(t=>doneSet.has(t[0])).length/leaves.length);}
+function render(){
+  const g=new JSGantt.GanttChart(document.getElementById('GanttChartDIV'),currentFormat);
+  g.setOptions({vShowComp:1,vShowStartDate:1,vShowEndDate:1,vDayColWidth:30,vWeekColWidth:120,vMonthColWidth:180});
+  RAW.filter(t=>t[1].toLowerCase().includes(currentQuery.toLowerCase())).forEach(t=>{
+    const[id,name,start,end,prog,group,parent,dep]=t;
+    const done=doneSet.has(id);
+    const bar=done?'gtaskdone':(group?'ggroupblack':'gtaskblue');
+    g.AddTaskItem(new JSGantt.TaskItem(id,name,start,end,bar,'',0,'',prog,group,parent,1,dep,''));
+  });
+  g.Draw();
+  const proj=RAW.find(t=>t[0]==='0');if(proj)document.getElementById('duration').innerText=daysBetween(proj[2],proj[3])+' hari';
+  const ov=computeOverall();document.getElementById('overall').innerText='Overall: '+ov+'%';document.getElementById('statusNum').innerText=ov+'%';
+  drawTodayLine();
+}
+
+function drawTodayLine(){
+  const today=new Date();
+  const start=new Date(RAW[0][2]);
+  const diffDays=Math.floor((today-start)/(1000*60*60*24));
+  const line=document.getElementById('todayLine');
+  const colWidth=30;
+  line.style.left=(diffDays*colWidth)+'px';
+}
+
+document.getElementById('resetBtn').onclick=()=>{if(confirm('Reset semua progress?')){clearSet();render();}};
+document.getElementById('search').oninput=e=>{currentQuery=e.target.value;render();};
+document.querySelectorAll('#scale button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#scale button').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentFormat=b.dataset.format;render();});
+render();
+</script>
+</body>
+</html>
