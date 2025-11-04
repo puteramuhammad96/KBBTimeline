@@ -1,11 +1,8 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KBB Timeline — Final Fixed (All-in-One)</title>
+<title>KBB Timeline — vFinal_AutoView (All-in-One)</title>
 <style>
-:root{
-  --bg:#0a0a0a;--panel:#121212;--ink:#e5e5e5;--muted:#9ca3af;
-  --amber:#fbbf24;--amber600:#f59e0b;--border:#27272a;--red:#ef4444;
-}
+:root{--bg:#0a0a0a;--panel:#121212;--ink:#e5e5e5;--muted:#9ca3af;--amber:#fbbf24;--amber600:#f59e0b;--border:#27272a;--red:#ef4444}
 *{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--bg);color:var(--ink)}
 .container{max-width:1200px;margin:0 auto;padding:24px}
 .header{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
@@ -21,23 +18,24 @@
 .card{background:#18181b;border:1px solid var(--border);border-radius:16px;padding:16px}
 .legend{font-size:12px;color:var(--muted);margin-top:8px}
 
-/* Gantt layout */
-.gantt{border:1px solid var(--border);border-radius:12px;overflow:auto;position:relative;min-height:420px}
+/* Gantt */
+.gantt{border:1px solid var(--border);border-radius:12px;overflow:auto;position:relative;min-height:420px;scroll-behavior:smooth}
 .table{display:grid;grid-template-columns:320px 1fr;min-width:980px}
-.left{position:sticky;left:0;background:#0f0f0f;border-right:1px solid var(--border);z-index:2}
+.left{position:sticky;left:0;background:#0f0f0f;border-right:1px solid var(--border);z-index:3}
 .lrow{padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .lrow.group{font-weight:700}
 .right{position:relative}
-.rh{position:sticky;top:0;background:#0f0f0f;border-bottom:1px solid var(--border);z-index:1}
-.monthbar{height:28px;display:flex;align-items:center;font-size:12px;color:#cbd5e1;border-bottom:1px solid #1f1f1f}
-.scale2{height:26px;display:flex;align-items:center;font-size:12px;color:#a1a1aa;border-bottom:1px solid #1f1f1f}
+.rh{position:sticky;top:0;background:#0f0f0f;border-bottom:1px solid var(--border);z-index:2}
+.monthbar,.scale2{display:flex;align-items:center;font-size:12px;color:#cbd5e1}
+.monthbar{height:28px;border-bottom:1px solid #1f1f1f}
+.scale2{height:26px;color:#a1a1aa;border-bottom:1px solid #1f1f1f}
 .seg{display:flex;align-items:center;justify-content:flex-start;padding:0 8px;border-right:1px solid #1f1f1f}
 .rgrid{position:relative}
 .rrow{height:32px;border-bottom:1px dashed #1f1f1f}
 
-/* Drawing */
-.tl{position:absolute;width:2px;background:var(--red);z-index:5;pointer-events:none}
-.bar{position:absolute;height:22px;border-radius:6px;transform:translateY(-50%);cursor:pointer;color:#0b0b0b;font-size:12px;display:flex;align-items:center;justify-content:center;padding:0 6px;border:1px solid #3f3f46;background:linear-gradient(90deg,#6b7280,#4b5563)}
+/* Drawables */
+.tl{position:absolute;width:2px;background:var(--red);z-index:5;pointer-events:none;box-shadow:0 0 0 1px rgba(239,68,68,.3), 0 0 10px rgba(239,68,68,.35)}
+.bar{position:absolute;height:22px;border-radius:6px;transform:translateY(-50%);cursor:pointer;color:#0b0b0b;font-size:12px;display:flex;align-items:center;justify-content:center;padding:0 6px;border:1px solid #3f3f46;background:linear-gradient(90deg,#6b7280,#4b5563);z-index:4}
 .bar.done{background:linear-gradient(90deg,var(--amber),var(--amber600));border-color:rgba(251,191,36,.35)}
 .tooltip{position:absolute;background:#111;border:1px solid #333;color:#fff;font-size:12px;padding:8px 10px;border-radius:8px;max-width:280px;z-index:10;box-shadow:0 0 8px rgba(0,0,0,.45)}
 .tooltip button{margin-top:6px;padding:4px 8px;border:0;border-radius:6px;background:#d97706;color:#fff;cursor:pointer}
@@ -79,7 +77,7 @@
 </div>
 
 <script>
-/* ================== DATA ================== */
+/* ===== DATA ===== */
 const RAW = [
  ["0","KBB STEAKHOUSE, KUALA TERENGGANU","2025-11-06","2025-12-04",0,1,"0",""],
  ["1","Site Preparation","2025-11-06","2025-11-07",0,0,"0",""],
@@ -126,165 +124,127 @@ const RAW = [
  ["42","Install Signage (Main)","2025-12-02","2025-12-04",0,0,"30","41,28"]
 ];
 
-/* ============== UTILITIES ============== */
+/* ====== UTIL ====== */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const parse=d=>new Date(d+"T00:00:00");
-const dBetween=(a,b)=>Math.max(1,Math.round((parse(b)-parse(a))/86400000));
-const dDiff=(a,b)=>Math.round((parse(b)-parse(a))/86400000);
+const ddiff=(a,b)=>Math.round((parse(b)-parse(a))/86400000);
+const dbetween=(a,b)=>Math.max(1,Math.round((parse(b)-parse(a))/86400000));
 const startProj=RAW.find(t=>t[0]==="0")[2], endProj=RAW.find(t=>t[0]==="0")[3];
 const nameMap={}; RAW.forEach(t=>nameMap[t[0]]=t[1]);
 const children=id=>RAW.filter(t=>t[6]==id);
-const isGroup=id=> (RAW.find(t=>t[0]==id)||[])[5]===1;
-const groupDone=id=>{
-  const kids=children(id);
-  return kids.length>0 && kids.every(t=> t[5]===1 ? groupDone(t[0]) : doneSet.has(t[0]));
-};
-
-const STORAGE_KEY="kbb_allinone_done";
-let doneSet=new Set(JSON.parse(localStorage.getItem(STORAGE_KEY)||"[]"));
+const groupDone=id=>{const kids=children(id);return kids.length>0&&kids.every(t=>t[5]===1?groupDone(t[0]):doneSet.has(t[0]));};
+let doneSet=new Set(JSON.parse(localStorage.getItem("kbb_allinone_done")||"[]"));
 let SCALE="day", QUERY="";
+const ROW_H=32, PX=()=>SCALE==="day"?30:(SCALE==="week"?10:4);
 
-/* Scale constants */
-const ROW_H = 32, H_MONTH=28, H_SCALE=26;
-const PX =()=> SCALE==="day"?30 : (SCALE==="week"?10:4); /* px per day */
-
-/* ================ RENDER ================ */
+/* ====== RENDER ====== */
 function render(){
   const gantt=$("#gantt"); gantt.innerHTML="";
   const table=document.createElement("div"); table.className="table"; gantt.appendChild(table);
   const left=document.createElement("div"); left.className="left"; table.appendChild(left);
   const right=document.createElement("div"); right.className="right"; table.appendChild(right);
 
-  /* Header timeline */
+  // Header
   const rh=document.createElement("div"); rh.className="rh"; right.appendChild(rh);
-  rh.appendChild(buildHeader()); // adds month + scale bars
+  rh.appendChild(buildHeader());
 
   const rgrid=document.createElement("div"); rgrid.className="rgrid"; right.appendChild(rgrid);
 
-  /* Today line inside rgrid (height = rows area) */
-  const filtered = RAW.filter(t=>t[1].toLowerCase().includes(QUERY.toLowerCase()));
-  const rows = filtered;
-  const rowsHeight = rows.length * ROW_H;
+  // Data
+  const rows=RAW.filter(t=>t[1].toLowerCase().includes(QUERY.toLowerCase()));
+  rows.forEach(t=>{ const lr=document.createElement("div"); lr.className="lrow"+(t[5]? " group": ""); lr.textContent=t[1]; left.appendChild(lr); const rr=document.createElement("div"); rr.className="rrow"; rgrid.appendChild(rr); });
+
+  // Today line (full rows height)
   const tl=document.createElement("div"); tl.className="tl";
-  tl.style.top = "0px"; tl.style.height = rowsHeight+"px";
-  tl.style.left = (Math.floor((new Date()-parse(startProj))/86400000)*PX())+"px";
+  tl.style.height = (rows.length*ROW_H)+"px";
+  tl.style.left = (Math.max(0, ddiff(startProj,new Date().toISOString().slice(0,10)))*PX())+"px";
   rgrid.appendChild(tl);
 
-  /* LEFT labels + RIGHT rows */
-  rows.forEach((t)=>{
-    const [id,name,s,e,prog,group,parent,dep]=t;
-    const lr=document.createElement("div"); lr.className="lrow"; if(group) lr.classList.add("group");
-    lr.textContent=name; left.appendChild(lr);
-    const rr=document.createElement("div"); rr.className="rrow"; rgrid.appendChild(rr);
-  });
-
-  /* Bars rendered AFTER rows using pure math (no DOM offsets) */
-  const totalDays = dDiff(startProj,endProj)+1;
-  const headerH = H_MONTH + H_SCALE; // used only for scrollbar spacing; bars live in rgrid which starts below header already
-  const px = PX();
+  // Bars
+  const px=PX();
   rows.forEach((t,idx)=>{
-    const [id,name,s,e,prog,group,parent,dep]=t;
-    const leftPx = dDiff(startProj,s)*px;
-    const widthPx = dBetween(s,e)*px;
-    const yCenter = idx*ROW_H + ROW_H/2;
+    const [id,name,s,e,_,group,parent,dep]=t;
+    const leftPx = ddiff(startProj,s)*px;
+    const widthPx = dbetween(s,e)*px;
+    const y = idx*ROW_H + ROW_H/2;
 
-    const bar=document.createElement("div");
-    bar.className="bar";
-    const done = doneSet.has(id) || (group && groupDone(id));
-    if(done) bar.classList.add("done");
-    bar.style.left = leftPx+"px";
-    bar.style.width = widthPx+"px";
-    bar.style.top = yCenter+"px";
-    bar.dataset.id=id;
+    const done = doneSet.has(id) || (group&&groupDone(id));
+    const bar=document.createElement("div"); bar.className="bar"+(done?" done":"");
+    bar.style.left=leftPx+"px"; bar.style.width=widthPx+"px"; bar.style.top=y+"px"; bar.dataset.id=id;
 
-    /* Tooltip + Toggle */
     bar.addEventListener("mouseenter",ev=>showTip(ev,t));
     bar.addEventListener("mouseleave",hideTips);
-    bar.addEventListener("click",ev=>{
-      if(group) return; // toggle only leaf
-      if(doneSet.has(id)) doneSet.delete(id); else doneSet.add(id);
-      localStorage.setItem(STORAGE_KEY,JSON.stringify([...doneSet]));
-      render(); showTip(ev,t);
-    });
+    bar.addEventListener("click",ev=>{ if(group) return; if(doneSet.has(id)) doneSet.delete(id); else doneSet.add(id); localStorage.setItem("kbb_allinone_done",JSON.stringify([...doneSet])); render(); showTip(ev,t); });
 
     rgrid.appendChild(bar);
   });
 
-  /* Header numbers */
-  $("#duration").textContent = (dDiff(startProj,endProj)+1)+" hari";
+  // Header stats
+  $("#duration").textContent=(ddiff(startProj,endProj)+1)+" hari";
   const leaves=RAW.filter(t=>t[5]===0);
   const pct=Math.round(100*leaves.filter(t=>doneSet.has(t[0])).length/(leaves.length||1));
   $("#overallChip").textContent="Overall: "+pct+"%"; $("#statusNum").textContent=pct+"%";
+
+  // === Auto-scroll to TODAY (center) ===
+  const leftColW=320; // same as grid template
+  const todayLeft = Math.max(0, ddiff(startProj,new Date().toISOString().slice(0,10)))*px;
+  const viewW = gantt.clientWidth;
+  const target = Math.max(0, leftColW + todayLeft - (viewW-leftColW)/2);
+  gantt.scrollLeft = target;
 }
 
-/* Build header (months + sub-scale) */
+/* Header builder */
 function buildHeader(){
   const wrap=document.createElement("div");
-  const px=PX(), totalW=(dDiff(startProj,endProj)+1)*px;
+  const px=PX(), totalDays=ddiff(startProj,endProj)+1, totalW=totalDays*px;
 
-  /* Months */
+  // Months
   const mbar=document.createElement("div"); mbar.className="monthbar"; mbar.style.width=totalW+"px";
-  let cur=new Date(startProj+"T00:00:00"), last=new Date(endProj+"T00:00:00");
+  let cur=parse(startProj), last=parse(endProj);
   while(cur<=last){
-    const y=cur.getFullYear(), m=cur.getMonth()+1;
-    const next=new Date(y,m,1);
-    const segDays = Math.min(dDiff(cur.toISOString().slice(0,10), endProj)+1, dDiff(cur.toISOString().slice(0,10), next.toISOString().slice(0,10)));
+    const y=cur.getFullYear(), m=cur.getMonth();
+    const start=new Date(y,m,1), next=new Date(y,m+1,1);
+    const segDays=Math.min(ddiff(start.toISOString().slice(0,10), endProj)+1, ddiff(start.toISOString().slice(0,10), next.toISOString().slice(0,10)));
     const seg=document.createElement("div"); seg.className="seg"; seg.style.width=(segDays*px)+"px";
     seg.textContent=new Intl.DateTimeFormat('en',{month:'short',year:'2-digit'}).format(cur);
     mbar.appendChild(seg); cur=next;
   }
   wrap.appendChild(mbar);
 
-  /* Scale 2 (weeks/days) */
+  // Scale 2
   const s2=document.createElement("div"); s2.className="scale2"; s2.style.width=totalW+"px";
   if(SCALE==="day"){
-    for(let d=0; d<totalW/px; d++){
-      const seg=document.createElement("div"); seg.className="seg"; seg.style.width=px+"px"; seg.textContent=(d+1);
-      s2.appendChild(seg);
-    }
+    for(let i=0;i<totalDays;i++){ const d=document.createElement("div"); d.className="seg"; d.style.width=px+"px"; d.textContent=(i+1); s2.appendChild(d); }
   }else if(SCALE==="week"){
-    const totalWeeks = Math.ceil((dDiff(startProj,endProj)+1)/7);
-    for(let w=1; w<=totalWeeks; w++){
-      const seg=document.createElement("div"); seg.className="seg"; seg.style.width=(7*px)+"px"; seg.textContent="W"+w;
-      s2.appendChild(seg);
-    }
-  }else{ // month scale thin markers
-    for(let i=0;i<Math.ceil((dDiff(startProj,endProj)+1)/30);i++){
-      const seg=document.createElement("div"); seg.className="seg"; seg.style.width=(30*px)+"px"; seg.textContent="";
-      s2.appendChild(seg);
-    }
+    const weeks=Math.ceil(totalDays/7); for(let w=1;w<=weeks;w++){ const d=document.createElement("div"); d.className="seg"; d.style.width=(7*px)+"px"; d.textContent="W"+w; s2.appendChild(d); }
+  }else{
+    const blocks=Math.ceil(totalDays/30); for(let m=0;m<blocks;m++){ const d=document.createElement("div"); d.className="seg"; d.style.width=(30*px)+"px"; s2.appendChild(d); }
   }
   wrap.appendChild(s2);
   return wrap;
 }
 
-/* Tooltip helpers */
+/* Tooltip */
 function hideTips(){ document.querySelectorAll('.tooltip').forEach(x=>x.remove()); }
 function showTip(ev,t){
   hideTips();
-  const [id,name,s,e,prog,group,parent,dep]=t; const dur=dBetween(s,e);
+  const [id,name,s,e,_,group,parent,dep]=t, dur=dbetween(s,e);
   const tip=document.createElement("div"); tip.className="tooltip";
-  tip.innerHTML = `<strong>${name}</strong><br>
+  tip.innerHTML=`<strong>${name}</strong><br>
     📅 ${s} → ${e} (${dur} hari)<br>
     🧱 Group: ${nameMap[parent]||"-"}<br>
     🔗 Dep: ${dep||"-"}<br>` + (!group? `<button>${doneSet.has(id)?'Mark as Not Done':'Mark Done'}</button>`:"<span class='small'>Group auto-complete bila semua subtask siap</span>");
   document.body.appendChild(tip);
-  const r=ev.target.getBoundingClientRect();
-  tip.style.left=(r.left+window.scrollX+12)+"px";
-  tip.style.top=(r.top+window.scrollY-10)+"px";
-  const btn=tip.querySelector("button");
-  if(btn){ btn.onclick=()=>{ if(doneSet.has(id)) doneSet.delete(id); else doneSet.add(id); localStorage.setItem(STORAGE_KEY,JSON.stringify([...doneSet])); render(); }; }
+  const r=ev.target.getBoundingClientRect(); tip.style.left=(r.left+window.scrollX+12)+"px"; tip.style.top=(r.top+window.scrollY-10)+"px";
+  const btn=tip.querySelector("button"); if(btn){ btn.onclick=()=>{ if(doneSet.has(id)) doneSet.delete(id); else doneSet.add(id); localStorage.setItem("kbb_allinone_done",JSON.stringify([...doneSet])); render(); }; }
 }
 
 /* Events */
 $("#search").addEventListener("input",e=>{ QUERY=e.target.value; render(); });
-$$(".button-group .button").forEach(b=>b.addEventListener("click",()=>{
-  $$(".button-group .button").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active"); SCALE=b.dataset.scale; render();
-}));
-$("#resetBtn").addEventListener("click",()=>{ if(confirm("Reset semua progress?")){ localStorage.removeItem(STORAGE_KEY); doneSet=new Set(); render(); }});
+$$(".button-group .button").forEach(b=>b.addEventListener("click",()=>{ $$(".button-group .button").forEach(x=>x.classList.remove("active")); b.classList.add("active"); SCALE=b.dataset.scale; render(); }));
+$("#resetBtn").addEventListener("click",()=>{ if(confirm("Reset semua progress?")){ localStorage.removeItem("kbb_allinone_done"); doneSet=new Set(); render(); }});
 
-/* First paint */
+/* Init */
 render();
 </script>
 </body></html>
