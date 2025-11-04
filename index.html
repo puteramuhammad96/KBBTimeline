@@ -1,12 +1,49 @@
-
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>KBB Timeline — Pro Amber v3 Fixed</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsgantt-improved@2.9.3/dist/jsgantt.css">
-<link rel="stylesheet" href="./assets/style.css">
+<title>KBB Timeline — Pro Amber (Single File)</title>
+
+<!-- Theme CSS (dark + amber) -->
+<style>
+:root{
+  --bg:#0a0a0a;--panel:#121212;--ink:#e5e5e5;--muted:#9ca3af;
+  --amber:#fbbf24;--amber-600:#f59e0b;--amber-700:#d97706;
+  --card:#18181b;--border:#27272a;--red:#ef4444;
+}
+*{box-sizing:border-box}html,body{height:100%}
+body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:var(--bg);color:var(--ink)}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.header{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+.h-title{font-size:28px;font-weight:700;letter-spacing:-.01em}
+.h-sub{color:var(--muted)}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{background:rgba(251,191,36,.12);color:var(--amber);padding:6px 10px;border-radius:999px;border:1px solid rgba(251,191,36,.25);font-size:13px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px}
+.grid{display:grid;grid-template-columns:1.5fr .5fr;gap:12px}
+.input{width:100%;padding:10px;border-radius:12px;background:#0b0b0b;border:1px solid var(--border);color:var(--ink);outline:none}
+.input:focus{border-color:var(--amber)}
+.btns{display:flex;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.btns button{background:#0b0b0b;color:var(--ink);padding:8px 12px;border:0;cursor:pointer}
+.btns button.active{background:#161616;color:#fff}
+.legend{font-size:12px;color:var(--muted);margin-top:6px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;position:relative}
+.gantt-wrap{overflow:auto;border-radius:12px;border:1px solid var(--border);position:relative;min-height:360px}
+.gtaskblue{background:linear-gradient(90deg,#6b7280,#4b5563)!important}
+.gtaskdone{background:linear-gradient(90deg,var(--amber),var(--amber-600))!important;border:1px solid rgba(251,191,36,.3)!important}
+.tooltip{position:absolute;background:#111;border:1px solid #333;color:#fff;font-size:13px;
+  padding:8px 10px;border-radius:8px;max-width:260px;z-index:1000;box-shadow:0 0 8px rgba(0,0,0,.5)}
+.tooltip button{margin-top:6px;padding:4px 8px;border:0;border-radius:6px;background:var(--amber-700);color:#fff;cursor:pointer;font-size:12px}
+.tooltip button:hover{background:var(--amber-600)}
+.reset-btn{background:none;border:1px solid rgba(251,191,36,.25);color:var(--amber);padding:6px 10px;border-radius:8px;font-size:13px;cursor:pointer}
+.reset-btn:hover{background:rgba(251,191,36,.1)}
+.today-line{position:absolute;width:2px;background:var(--red);height:100%;top:0;z-index:50;pointer-events:none}
+.fallback{color:var(--muted);font-size:14px;text-align:center;padding:40px}
+</style>
+
+<!-- Try local CSS first; JS will add CDN CSS if needed -->
+<link id="jsgantt-css" rel="stylesheet" href="./libs/jsgantt-improved.min.css">
 </head>
 <body>
 <div class="container">
@@ -46,39 +83,179 @@
   <div class="card" style="margin-top:12px;">
     <div class="gantt-wrap">
       <div class="today-line" id="todayLine"></div>
-      <div class="gantt" id="GanttChartDIV"><div class="fallback">Memuat carta Gantt...</div></div>
+      <div class="gantt" id="GanttChartDIV"><div class="fallback">Memuat carta Gantt…</div></div>
     </div>
-    <div class="legend">🚩 Garis merah = tarikh hari ini • Klik bar untuk tandakan siap • Auto expand semua task.</div>
+    <div class="legend">🚩 Garis merah = tarikh hari ini • Hover/klik bar untuk info • Klik untuk tandakan siap • Reset untuk kosongkan status.</div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/jsgantt-improved@2.9.3/dist/jsgantt.js"></script>
+<!-- Try local JS first; fallback to CDN v2.8.9 if local missing -->
 <script>
-const RAW = [["0", "KBB STEAKHOUSE, KUALA TERENGGANU", "2025-11-06", "2025-12-04", 0, 1, "0", ""], ["1", "Site Preparation", "2025-11-06", "2025-11-07", 0, 0, "0", ""], ["2", "Manufacture Site Hoarding", "2025-11-06", "2025-11-06", 0, 0, "1", ""], ["3", "Install Site Hoarding", "2025-11-07", "2025-11-07", 0, 0, "1", "2"], ["4", "Circular Wing (Cover Dining & Toilet)", "2025-11-08", "2025-12-04", 0, 1, "0", "3"], ["5", "Site Delivery", "2025-11-08", "2025-11-11", 0, 0, "4", "3"], ["6", "Demolish Floor Finish", "2025-11-08", "2025-11-10", 0, 0, "4", "5"], ["7", "Install Ceiling", "2025-11-23", "2025-11-25", 0, 0, "4", "6"], ["8", "Paint Work", "2025-11-25", "2025-11-28", 0, 0, "4", "7"]];
-const STORAGE_KEY='kbb_v3_fixed_done';
+(function loadJSGantt(){
+  function injectCDN(){
+    // add CDN CSS if local css didn't load
+    if(!document.querySelector('link[data-cdn-css]')){
+      const l=document.createElement('link');
+      l.rel='stylesheet'; l.href='https://cdn.jsdelivr.net/npm/jsgantt-improved@2.8.9/dist/jsgantt.css';
+      l.setAttribute('data-cdn-css','1'); document.head.appendChild(l);
+    }
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/jsgantt-improved@2.8.9/dist/jsgantt.min.js';
+    s.onload=initApp;
+    s.onerror=function(){ document.getElementById('GanttChartDIV').innerHTML='<div class="fallback">⚠️ Carta gagal dimuat. Sila sambung internet atau letak fail <code>jsgantt-improved.min.js</code> & <code>.css</code> dalam folder <code>./libs/</code>.</div>'; };
+    document.body.appendChild(s);
+  }
+  // try local
+  const s=document.createElement('script');
+  s.src='./libs/jsgantt-improved.min.js';
+  s.onload=initApp;
+  s.onerror=injectCDN;
+  document.body.appendChild(s);
+})();
+</script>
+
+<script>
+/* ====== DATA TASK PENUH ====== */
+const RAW = [
+  ["0","KBB STEAKHOUSE, KUALA TERENGGANU","2025-11-06","2025-12-04",0,1,"0",""],
+  ["1","Site Preparation","2025-11-06","2025-11-07",0,0,"0",""],
+  ["2","Manufacture Site Hoarding","2025-11-06","2025-11-06",0,0,"1",""],
+  ["3","Install Site Hoarding","2025-11-07","2025-11-07",0,0,"1","2"],
+  ["4","Circular Wing (Cover Dining & Toilet)","2025-11-08","2025-12-04",0,1,"0","3"],
+  ["5","Site Delivery","2025-11-08","2025-11-11",0,0,"4","3"],
+  ["6","Marking Demolition Items/Location","2025-11-08","2025-11-08",0,0,"4","5"],
+  ["7","Demolish Floor Finish, Handwash & Steel Cage","2025-11-08","2025-11-10",0,0,"4","6"],
+  ["8","Erect Brickwall Exterior","2025-11-08","2025-11-13",0,0,"4","7,5"],
+  ["9","Plumbing Line for Handwash Area","2025-11-10","2025-11-11",0,0,"4","7"],
+  ["10","Erect Bricks at Toilet (Set Pipe)","2025-11-11","2025-11-12",0,0,"4","9"],
+  ["11","Erect Brickwalls at Photo Area","2025-11-12","2025-11-14",0,0,"4","10"],
+  ["12","Install Fittings at Toilet","2025-11-13","2025-11-14",0,0,"4","8"],
+  ["13","Install Tiles at Toilet","2025-11-14","2025-11-16",0,0,"4","12"],
+  ["14","Brickwalls & Top at Middle Column","2025-11-14","2025-11-16",0,0,"4","11"],
+  ["15","Floor Tiles at Dining Area","2025-11-16","2025-11-20",0,0,"4","14"],
+  ["16","Tiles at Handwash Area","2025-11-16","2025-11-18",0,0,"4","13"],
+  ["17","Measurement for Glass Door","2025-11-13","2025-11-14",0,0,"4","8"],
+  ["23","Ceiling Work (Frame)","2025-11-18","2025-11-19",0,0,"4","16"],
+  ["18","Set Out & Material – Electrical","2025-11-19","2025-11-21",0,0,"4","23"],
+  ["19","Wiring & Piping Relocation","2025-11-21","2025-11-23",0,0,"4","18"],
+  ["20","Set Out & Material – Aircond","2025-11-23","2025-11-24",0,0,"4","19"],
+  ["21","Aircond Installation","2025-11-24","2025-11-25",0,0,"4","20"],
+  ["37","Install Ceiling","2025-11-23","2025-11-25",0,0,"30","36,35"],
+  ["22","Plastering Work","2025-11-25","2025-11-29",0,0,"4","15,19,37"],
+  ["24","Ceiling Finishes","2025-11-25","2025-11-26",0,0,"4","21,23,39"],
+  ["40","Paint Work (Main Wing)","2025-11-25","2025-11-28",0,0,"30","37"],
+  ["41","Install Cabinetry (Main Wing)","2025-11-28","2025-11-29",0,0,"30","40"],
+  ["25","Paint Work (Circular Wing)","2025-11-29","2025-12-02",0,0,"4","22,24"],
+  ["26","Install Cabinetry (Circular Wing)","2025-11-29","2025-11-30",0,0,"4","41"],
+  ["27","Install Steel Structure","2025-11-30","2025-12-02",0,0,"4","26"],
+  ["28","Install Signage (Circular Wing)","2025-12-02","2025-12-04",0,0,"4","25,27"],
+  ["29","Install Door","2025-12-02","2025-12-04",0,0,"4","28,17"],
+  ["30","Main Wing","2025-11-16","2025-12-04",0,1,"0",""],
+  ["31","Demolish Floor Finish (Main)","2025-11-16","2025-11-19",0,0,"30","15"],
+  ["32","Demolish Wall Finish to Exposed Brick","2025-11-16","2025-11-19",0,0,"30","31"],
+  ["33","Demolish Ceiling (Main)","2025-11-16","2025-11-19",0,0,"30","32"],
+  ["34","Set Out & Material – Electrical (Main)","2025-11-19","2025-11-21",0,0,"30","31,32,33"],
+  ["35","Wiring & Piping Relocation (Main)","2025-11-21","2025-11-23",0,0,"30","34"],
+  ["36","Wall Mod (VIP Room – Shera)","2025-11-19","2025-11-22",0,0,"30","31,32,33"],
+  ["38","Outdoor Touch Up (Demo/Render/Gravel)","2025-11-19","2025-11-23",0,0,"30","23"],
+  ["39","Tiles at Foyer","2025-11-23","2025-11-25",0,0,"30","38"],
+  ["42","Install Signage (Main)","2025-12-02","2025-12-04",0,0,"30","41,28"]
+];
+
+/* ====== APP JS ====== */
+const STORAGE_KEY='kbb_pro_done';
 let doneSet=new Set(JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]'));
-let currentFormat='day';
+let currentFormat='day', currentQuery='';
 
-function saveSet(){localStorage.setItem(STORAGE_KEY,JSON.stringify([...doneSet]));}
-function clearSet(){doneSet.clear();saveSet();}
-function daysBetween(a,b){return Math.max(1,Math.round((new Date(b)-new Date(a))/86400000));}
-function computeOverall(){const leaves=RAW.filter(t=>t[5]===0);return Math.round(100*leaves.filter(t=>doneSet.has(t[0])).length/leaves.length);}
+function initApp(){
+  // Build name map for group label
+  window.nameMap={}; RAW.forEach(t=>nameMap[t[0]]=t[1]);
 
-function render(){try{const g=new JSGantt.GanttChart(document.getElementById('GanttChartDIV'),currentFormat);
-g.setOptions({vShowComp:1,vShowStartDate:1,vShowEndDate:1,vDayColWidth:30,vWeekColWidth:120,vMonthColWidth:180,vUseSingleCell:100});
-RAW.forEach(t=>{const[id,name,start,end,prog,group,parent,dep]=t;const done=doneSet.has(id);
-const bar=done?'gtaskdone':(group?'ggroupblack':'gtaskblue');g.AddTaskItem(new JSGantt.TaskItem(id,name,start,end,bar,'',0,'',prog,group,parent,1,dep,''));});
-g.Draw();
-document.getElementById('GanttChartDIV').querySelector('.fallback')?.remove();
-const proj=RAW[0];document.getElementById('duration').innerText=daysBetween(proj[2],proj[3])+' hari';
-document.getElementById('overall').innerText='Overall: '+computeOverall()+'%';document.getElementById('statusNum').innerText=computeOverall()+'%';
-drawTodayLine();}catch(e){document.getElementById('GanttChartDIV').innerHTML='<div class="fallback">⚠️ Carta gagal dimuat. Pastikan sambungan internet untuk library JS Gantt.</div>';console.error(e);}
+  function saveSet(){ localStorage.setItem(STORAGE_KEY, JSON.stringify([...doneSet])); }
+  function clearSet(){ doneSet.clear(); saveSet(); }
+  function daysBetween(a,b){ return Math.max(1, Math.round((new Date(b)-new Date(a))/86400000)); }
+  function computeOverall(){
+    const leaves = RAW.filter(t=>t[5]===0);
+    return Math.round(100 * leaves.filter(t=>doneSet.has(t[0])).length / (leaves.length||1));
+  }
+  function childrenOf(id){ return RAW.filter(t=>t[6]==id); }
+  function isGroupDone(id){
+    const kids=childrenOf(id);
+    return kids.length>0 && kids.every(t => t[5]==1 ? isGroupDone(t[0]) : doneSet.has(t[0]));
+  }
+
+  function render(){
+    const el=document.getElementById('GanttChartDIV'); el.innerHTML='';
+    const g=new JSGantt.GanttChart(el,currentFormat);
+    g.setOptions({vShowComp:1,vShowStartDate:1,vShowEndDate:1,vDayColWidth:30,vWeekColWidth:120,vMonthColWidth:180,vUseSort:0});
+    RAW.filter(t=>t[1].toLowerCase().includes(currentQuery.toLowerCase())).forEach(t=>{
+      const[id,name,start,end,prog,group,parent,dep]=t;
+      const done=doneSet.has(id);
+      const gDone=(group==1)?isGroupDone(id):false;
+      const bar=(done||gDone)?'gtaskdone':(group?'ggroupblack':'gtaskblue');
+      g.AddTaskItem(new JSGantt.TaskItem(id,name,start,end,bar,'',0,'',prog,group,parent,1,dep,''));
+    });
+    g.Draw();
+
+    // header summaries
+    const proj=RAW.find(t=>t[0]==='0');
+    if(proj) document.getElementById('duration').innerText = daysBetween(proj[2],proj[3])+' hari';
+    const ov=computeOverall(); document.getElementById('overall').innerText='Overall: '+ov+'%'; document.getElementById('statusNum').innerText=ov+'%';
+
+    // bar interactions (tooltip + toggle)
+    RAW.forEach(t=>{
+      const bar=document.getElementById('taskbar_'+t[0]);
+      if(!bar) return;
+      bar.style.cursor='pointer';
+      bar.addEventListener('mouseenter',ev=>showTip(ev,t));
+      bar.addEventListener('mouseleave',removeTips);
+      bar.addEventListener('click',ev=>{ toggleDone(t[0]); showTip(ev,t); });
+    });
+
+    drawTodayLine();
+  }
+
+  function toggleDone(id){ if(doneSet.has(id)) doneSet.delete(id); else doneSet.add(id); saveSet(); render(); }
+  function removeTips(){ document.querySelectorAll('.tooltip').forEach(x=>x.remove()); }
+  function showTip(ev,t){
+    removeTips();
+    const[id,name,start,end,prog,group,parent,dep]=t;
+    const dur=daysBetween(start,end);
+    const div=document.createElement('div'); div.className='tooltip';
+    div.innerHTML='<strong>'+name+'</strong><br>'+
+      '📅 '+start+' → '+end+' ('+dur+' hari)<br>'+
+      '🧱 Group: '+(nameMap[parent]||'-')+'<br>'+
+      '🔗 Dep: '+(dep||'-')+'<br>'+
+      '<button id="toggleBtn">'+(doneSet.has(id)?'Mark as Not Done':'Mark Done')+'</button>';
+    document.body.appendChild(div);
+    const r=ev.target.getBoundingClientRect();
+    div.style.left=(r.left+window.scrollX+16)+'px';
+    div.style.top=(r.top+window.scrollY-16)+'px';
+    div.querySelector('#toggleBtn').onclick=()=>{ toggleDone(id); };
+    setTimeout(()=>document.addEventListener('click',closeTip,true),10);
+  }
+  function closeTip(e){ if(!e.target.closest('.tooltip')){ removeTips(); document.removeEventListener('click',closeTip,true); } }
+
+  function drawTodayLine(){
+    const line=document.getElementById('todayLine');
+    const start=new Date(RAW[0][2]); const today=new Date();
+    const dayWidth=(currentFormat==='month')?6:(currentFormat==='week'?18:30);
+    const diff=Math.floor((today-start)/86400000);
+    line.style.left=(diff*dayWidth)+'px';
+  }
+
+  // events
+  document.getElementById('search').addEventListener('input',e=>{ currentQuery=e.target.value; render(); });
+  document.querySelectorAll('#scale button').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('#scale button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); currentFormat=b.dataset.format; render();
+    });
+  });
+  document.getElementById('resetBtn').addEventListener('click',()=>{ if(confirm('Reset semua progress?')){ localStorage.removeItem(STORAGE_KEY); doneSet=new Set(); render(); } });
+
+  render();
 }
-
-function drawTodayLine(){const today=new Date();const start=new Date(RAW[0][2]);
-const diffDays=Math.floor((today-start)/(1000*60*60*24));document.getElementById('todayLine').style.left=(diffDays*30)+'px';}
-document.getElementById('resetBtn').onclick=()=>{if(confirm('Reset semua progress?')){clearSet();render();}};
-render();
 </script>
 </body>
 </html>
