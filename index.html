@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KBB Timeline — vFinal_GanttColor+RootFixStable_Complete</title>
+<title>KBB Timeline — Final Alignment + Red Line Fix</title>
 <style>
 :root{
   --bg:#0a0a0a;--panel:#121212;--ink:#e5e5e5;--muted:#9ca3af;
@@ -11,11 +11,10 @@
   --emerald:#10b981;--border:#27272a;--red:#ef4444
 }
 *{box-sizing:border-box}
-html,body{height:100%}
 body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--bg);color:var(--ink)}
 .container{max-width:1200px;margin:0 auto;padding:24px}
 .header{display:flex;gap:12px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
-.h-title{font-size:28px;font-weight:700;letter-spacing:-.01em}
+.h-title{font-size:28px;font-weight:700}
 .h-sub{color:var(--muted)}
 .controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .chip{background:rgba(251,191,36,.12);color:var(--amber);padding:6px 10px;border-radius:999px;border:1px solid rgba(251,191,36,.25);font-size:13px}
@@ -23,7 +22,7 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robot
 .button.active{background:#161616;color:#fff}
 .panel{background:#121212;border:1px solid var(--border);border-radius:16px;padding:12px}
 .gridhead{display:grid;grid-template-columns:1.5fr .5fr;gap:12px}
-.input{width:100%;padding:10px;border-radius:12px;background:#0b0b0b;border:1px solid var(--border);color:var(--ink);outline:none}
+.input{width:100%;padding:10px;border-radius:12px;background:#0b0b0b;border:1px solid var(--border);color:var(--ink)}
 .input:focus{border-color:var(--amber)}
 .card{background:#18181b;border:1px solid var(--border);border-radius:16px;padding:16px}
 .legend{font-size:12px;color:var(--muted);margin-top:8px}
@@ -44,7 +43,7 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robot
 .rrow{height:32px;border-bottom:1px dashed #1f1f1f}
 
 /* Drawables */
-.tl{position:absolute;width:2px;background:var(--red);z-index:6;pointer-events:none;box-shadow:0 0 0 1px rgba(239,68,68,.3),0 0 10px rgba(239,68,68,.35)}
+.tl{position:absolute;width:2px;background:var(--red);z-index:9999;pointer-events:none;box-shadow:0 0 0 1px rgba(239,68,68,.3),0 0 10px rgba(239,68,68,.35)}
 .bar{position:absolute;height:22px;border-radius:6px;transform:translateY(-50%);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;padding:0 6px;border:1px solid #3f3f46;z-index:5}
 .bar.normal{background:linear-gradient(90deg,var(--blue1),var(--blue2));color:#e5e7eb;border-color:#415a9c}
 .bar.group{background:linear-gradient(90deg,#fbbf24,#f59e0b);color:#1f2937;border-color:rgba(251,191,36,.35)}
@@ -89,8 +88,7 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robot
 </div>
 
 <script>
-/* ====== DATA (dari jadual asal) ====== */
-const RAW = [
+const RAW=[
  ["0","KBB STEAKHOUSE, KUALA TERENGGANU","2025-11-06","2025-12-04",0,1,"0",""],
  ["1","Site Preparation","2025-11-06","2025-11-07",0,0,"0",""],
  ["2","Manufacture Site Hoarding","2025-11-06","2025-11-06",0,0,"1",""],
@@ -136,172 +134,62 @@ const RAW = [
  ["42","Install Signage (Main)","2025-12-02","2025-12-04",0,0,"30","41,28"]
 ];
 
-/* ===== UTIL ===== */
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const $=s=>document.querySelector(s);
 const P=d=>new Date(d+"T00:00:00");
 const diff=(a,b)=>Math.round((P(b)-P(a))/86400000);
-const span=(a,b)=>Math.max(1,Math.round((P(b)-P(a))/86400000));
+const span=(a,b)=>Math.max(1,diff(a,b));
 const start=RAW.find(t=>t[0]==="0")[2], end=RAW.find(t=>t[0]==="0")[3];
+let done=new Set(JSON.parse(localStorage.getItem("kbb_done")||"[]"));
+let SCALE="day",QUERY="";
+const ROW_H=32,PX=()=>SCALE==="day"?30:(SCALE==="week"?10:4);
 
-let done=new Set(JSON.parse(localStorage.getItem("kbb_allinone_done")||"[]"));
-let SCALE="day", QUERY="";
-const ROW_H=32, PX=()=>SCALE==="day"?30:(SCALE==="week"?10:4);
-
-/* ===== RENDER ===== */
 function render(){
   const gantt=$("#gantt"); gantt.innerHTML="";
   const table=document.createElement("div"); table.className="table"; gantt.appendChild(table);
   const left=document.createElement("div"); left.className="left"; table.appendChild(left);
   const right=document.createElement("div"); right.className="right"; table.appendChild(right);
 
-  // Header
-  const rh=document.createElement("div"); rh.className="rh"; right.appendChild(rh);
-  rh.appendChild(buildHeader());
-
+  const rh=document.createElement("div"); rh.className="rh"; right.appendChild(rh); rh.appendChild(buildHeader());
   const rgrid=document.createElement("div"); rgrid.className="rgrid"; right.appendChild(rgrid);
+  const rows=RAW.filter(t=>t[1].toLowerCase().includes((QUERY||"").toLowerCase()));
+  rows.forEach(t=>{const l=document.createElement("div");l.className="lrow"+(t[5]?" group":"");l.textContent=t[1];left.appendChild(l);rgrid.appendChild(Object.assign(document.createElement("div"),{className:"rrow"}));});
+  const totalDays=diff(start,end)+1,px=PX(),bufferDays=3;rgrid.style.width=(totalDays+bufferDays)*px+"px";
 
-  // Rows + labels
-  const rows=RAW.filter(t=>{
-    const q=(QUERY||"").toLowerCase();
-    return t[1].toLowerCase().includes(q);
-  });
-  rows.forEach(t=>{
-    const l=document.createElement("div"); l.className="lrow"+(t[5]?" group":""); l.textContent=t[1]; left.appendChild(l);
-    const r=document.createElement("div"); r.className="rrow"; rgrid.appendChild(r);
-  });
-
-  // Grid width (add buffer for scroll)
-  const totalDays=diff(start,end)+1, px=PX(), bufferDays=3;
-  rgrid.style.width=(totalDays+bufferDays)*px+"px";
-
-  // Today line (local date to avoid UTC shift)
   const todayStr=new Date().toLocaleDateString('en-CA');
-  const tl=document.createElement("div"); tl.className="tl";
-  tl.style.height=(rows.length*ROW_H)+"px";
-  tl.style.left=(Math.max(0,diff(start,todayStr))*px)+"px";
-  rgrid.appendChild(tl);
+  const todayOffset=Math.min(Math.max(0,diff(start,todayStr)),diff(start,end));
+  const tl=document.createElement("div");tl.className="tl";tl.style.height=(rows.length*ROW_H)+"px";tl.style.left=(todayOffset*px)+"px";rgrid.appendChild(tl);
 
-  // Bars
-  rows.forEach((t,i)=>{
-    const [id,name,s,e,_,grp]=t;
-    if(id==="0") return; // root/title no bar
-
-    const x=(diff(start,s)+1)*px; // +1 visual offset
-    const w=span(s,e)*px;
-    const y=i*ROW_H+ROW_H/2;
-
-    const isDone = done.has(id);
-    const d=document.createElement("div");
-    d.className="bar "+(grp?"group ":"normal ")+(isDone?"done":"");
-    d.style.left=x+"px"; d.style.width=w+"px"; d.style.top=y+"px"; d.dataset.id=id;
-
-    d.addEventListener("mouseenter",ev=>showTip(ev,t));
-    d.addEventListener("mouseleave",hideTips);
-    d.addEventListener("click",()=>{
-      // toggle done (leaf only)
-      if(done.has(id)) done.delete(id); else done.add(id);
-      localStorage.setItem("kbb_allinone_done",JSON.stringify([...done]));
-      render();
-    });
-
+  rows.forEach((t,i)=>{const[id,name,s,e,_,grp]=t;if(id==="0")return;const x=(diff(start,s))*px;const w=(span(s,e)+1)*px;const y=i*ROW_H+ROW_H/2;
+    const d=document.createElement("div");d.className="bar "+(grp?"group ":"normal ")+(done.has(id)?"done":"");d.style.left=x+"px";d.style.width=w+"px";d.style.top=y+"px";
+    d.addEventListener("mouseenter",ev=>showTip(ev,t));d.addEventListener("mouseleave",hideTips);d.addEventListener("click",()=>{done.has(id)?done.delete(id):done.add(id);localStorage.setItem("kbb_done",JSON.stringify([...done]));render();});
     rgrid.appendChild(d);
   });
-
-  // Stats
-  const leaves=RAW.filter(t=>t[5]===0 && t[0]!=="0");
-  const pct=Math.round(100*leaves.filter(t=>done.has(t[0])).length/(leaves.length||1));
-  $("#overallChip").textContent="Overall: "+pct+"%";
-  $("#statusNum").textContent=pct+"%";
-  $("#duration").textContent=(totalDays)+" hari";
-
-  // Auto-center to today
-  const leftCol=320;
-  const target=Math.max(0, leftCol + (Math.max(0,diff(start,todayStr))*px) - (gantt.clientWidth-leftCol)/2);
-  gantt.scrollLeft = target;
+  const leaves=RAW.filter(t=>!t[5]&&t[0]!=="0");const pct=Math.round(100*leaves.filter(t=>done.has(t[0])).length/(leaves.length||1));
+  $("#overallChip").textContent="Overall: "+pct+"%";$("#statusNum").textContent=pct+"%";$("#duration").textContent=(totalDays)+" hari";
+  gantt.scrollLeft=Math.max(0,320+(todayOffset*px)-(gantt.clientWidth-320)/2);
 }
 
-/* ===== HEADER BUILDER ===== */
 function buildHeader(){
-  const wrap=document.createElement("div");
-  const totalDays=diff(start,end)+1, px=PX(), width=(totalDays+3)*px;
-
-  // Month row
-  const m=document.createElement("div"); m.className="monthbar"; m.style.width=width+"px";
-  let c=P(start), last=P(end);
-  while(c<=last){
-    const y=c.getFullYear(), mo=c.getMonth();
-    const first=new Date(y,mo,1), next=new Date(y,mo+1,1);
-    const segDays=Math.min(diff(first.toISOString().slice(0,10), end)+1, diff(first.toISOString().slice(0,10), next.toISOString().slice(0,10)));
-    const seg=document.createElement("div"); seg.className="seg"; seg.style.width=(segDays*px)+"px";
-    seg.textContent=new Intl.DateTimeFormat('en',{month:'short',year:'2-digit'}).format(c);
-    m.appendChild(seg); c=next;
-  }
+  const wrap=document.createElement("div");const totalDays=diff(start,end)+1,px=PX(),width=(totalDays+3)*px;
+  const m=document.createElement("div");m.className="monthbar";m.style.width=width+"px";
+  let c=P(start),last=P(end);while(c<=last){const y=c.getFullYear(),mo=c.getMonth(),first=new Date(y,mo,1),next=new Date(y,mo+1,1);
+    const segDays=Math.min(diff(first.toISOString().slice(0,10),end)+1,diff(first.toISOString().slice(0,10),next.toISOString().slice(0,10)));
+    const seg=document.createElement("div");seg.className="seg";seg.style.width=(segDays*px)+"px";seg.textContent=new Intl.DateTimeFormat('en',{month:'short',year:'2-digit'}).format(c);m.appendChild(seg);c=next;}
   wrap.appendChild(m);
-
-  // Scale row
-  const s2=document.createElement("div"); s2.className="scale2"; s2.style.width=width+"px";
-  if(SCALE==="day"){
-    let d=new Date(start);
-    for(let i=0;i<totalDays;i++){
-      const cell=document.createElement("div"); cell.className="seg"; cell.style.width=px+"px"; cell.textContent=d.getDate();
-      s2.appendChild(cell); d.setDate(d.getDate()+1);
-    }
-  } else if(SCALE==="week"){
-    const weeks=Math.ceil(totalDays/7);
-    for(let w=1;w<=weeks;w++){
-      const cell=document.createElement("div"); cell.className="seg"; cell.style.width=(7*px)+"px"; cell.textContent="W"+w;
-      s2.appendChild(cell);
-    }
-  } else {
-    const blocks=Math.ceil(totalDays/30);
-    for(let i=0;i<blocks;i++){
-      const cell=document.createElement("div"); cell.className="seg"; cell.style.width=(30*px)+"px";
-      s2.appendChild(cell);
-    }
-  }
-  wrap.appendChild(s2);
-  return wrap;
+  const s2=document.createElement("div");s2.className="scale2";s2.style.width=width+"px";
+  if(SCALE==="day"){let d=new Date(start);for(let i=0;i<totalDays;i++){const cell=document.createElement("div");cell.className="seg";cell.style.width=px+"px";cell.textContent=d.getDate();s2.appendChild(cell);d.setDate(d.getDate()+1);}}
+  else if(SCALE==="week"){const weeks=Math.ceil(totalDays/7);for(let w=1;w<=weeks;w++){const cell=document.createElement("div");cell.className="seg";cell.style.width=(7*px)+"px";cell.textContent="W"+w;s2.appendChild(cell);}}
+  else{const blocks=Math.ceil(totalDays/30);for(let i=0;i<blocks;i++){const cell=document.createElement("div");cell.className="seg";cell.style.width=(30*px)+"px";s2.appendChild(cell);}}
+  wrap.appendChild(s2);return wrap;
 }
-
-/* ===== TOOLTIP ===== */
-function hideTips(){ document.querySelectorAll('.tooltip').forEach(n=>n.remove()); }
-function showTip(ev,t){
-  hideTips();
-  const [id,name,s,e,_,grp]=t, dur=span(s,e);
-  const tip=document.createElement("div"); tip.className="tooltip";
-  tip.innerHTML = `<strong>${name}</strong><br>
-    📅 ${s} → ${e} (${dur} hari)<br>` + (grp ? `<span class="small">Group task</span>` :
-    `<button>${(done.has(id)?'Mark as Not Done':'Mark Done')}</button>`);
-  document.body.appendChild(tip);
-  const r=ev.target.getBoundingClientRect();
-  tip.style.left = (r.left + window.scrollX + 12) + "px";
-  tip.style.top  = (r.top  + window.scrollY - 10) + "px";
-  const btn=tip.querySelector("button");
-  if(btn){
-    btn.onclick = ()=>{
-      if(done.has(id)) done.delete(id); else done.add(id);
-      localStorage.setItem("kbb_allinone_done",JSON.stringify([...done]));
-      render();
-    };
-  }
-}
-
-/* ===== EVENTS ===== */
-$("#search").addEventListener("input",e=>{ QUERY=e.target.value; render(); });
-$$(".button-group .button").forEach(b=>{
-  b.addEventListener("click",()=>{
-    $$(".button-group .button").forEach(x=>x.classList.remove("active"));
-    b.classList.add("active"); SCALE=b.dataset.scale; render();
-  });
-});
-$("#resetBtn").addEventListener("click",()=>{
-  if(confirm("Reset semua progress?")){
-    localStorage.removeItem("kbb_allinone_done");
-    done=new Set(); render();
-  }
-});
-
-/* ===== INIT ===== */
+function hideTips(){document.querySelectorAll('.tooltip').forEach(n=>n.remove());}
+function showTip(ev,t){hideTips();const[id,name,s,e,_,grp]=t,dur=span(s,e);const tip=document.createElement("div");tip.className="tooltip";
+  tip.innerHTML=`<strong>${name}</strong><br>📅 ${s} → ${e} (${dur} hari)<br>`+(grp?`<span class="small">Group task</span>`:`<button>${(done.has(id)?'Mark as Not Done':'Mark Done')}</button>`);document.body.appendChild(tip);
+  const r=ev.target.getBoundingClientRect();tip.style.left=(r.left+window.scrollX+12)+"px";tip.style.top=(r.top+window.scrollY-10)+"px";
+  const btn=tip.querySelector("button");if(btn){btn.onclick=()=>{done.has(id)?done.delete(id):done.add(id);localStorage.setItem("kbb_done",JSON.stringify([...done]));render();};}}
+$("#search").addEventListener("input",e=>{QUERY=e.target.value;render();});
+document.querySelectorAll(".button-group .button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".button-group .button").forEach(x=>x.classList.remove("active"));b.classList.add("active");SCALE=b.dataset.scale;render();}));
+$("#resetBtn").addEventListener("click",()=>{if(confirm("Reset semua progress?")){localStorage.removeItem("kbb_done");done=new Set();render();}});
 render();
 </script>
 </body>
