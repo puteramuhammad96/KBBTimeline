@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KBB Timeline — Final Full</title>
+<title>KBB Timeline — Final Root Alignment</title>
 <style>
 :root{
   --bg:#0a0a0a;--panel:#121212;--ink:#e5e5e5;--muted:#9ca3af;
@@ -88,7 +88,6 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robot
 </div>
 
 <script>
-// full data
 const RAW = [
 ["0","KBB STEAKHOUSE, KUALA TERENGGANU","2025-11-06","2025-12-05",null,true],
 ["1","Site Preparation","2025-11-06","2025-12-05"],
@@ -125,7 +124,6 @@ const RAW = [
 const $=s=>document.querySelector(s);
 const P=d=>new Date(d+"T00:00:00");
 const diff=(a,b)=>Math.round((P(b)-P(a))/86400000);
-const span=(a,b)=>Math.max(1,diff(a,b)+1);
 const start=RAW.find(t=>t[0]==="0")[2], end=RAW.find(t=>t[0]==="0")[3];
 let done=new Set(JSON.parse(localStorage.getItem("kbb_done")||"[]"));
 let SCALE="day",QUERY="";
@@ -139,6 +137,7 @@ function render(){
 
   const rh=document.createElement("div"); rh.className="rh"; right.appendChild(rh); rh.appendChild(buildHeader());
   const rgrid=document.createElement("div"); rgrid.className="rgrid"; right.appendChild(rgrid);
+
   const rows=RAW.filter(t=>t[1].toLowerCase().includes((QUERY||"").toLowerCase()));
   rows.forEach(t=>{const l=document.createElement("div");l.className="lrow"+(t[5]?" group":"");l.textContent=t[1];left.appendChild(l);rgrid.appendChild(Object.assign(document.createElement("div"),{className:"rrow"}));});
   const totalDays=diff(start,end)+1,px=PX(),bufferDays=3;rgrid.style.width=(totalDays+bufferDays)*px+"px";
@@ -147,10 +146,13 @@ function render(){
   const todayOffset=Math.min(Math.max(0,diff(start,todayStr)),diff(start,end));
   const tl=document.createElement("div");tl.className="tl";tl.style.height=(rows.length*ROW_H)+"px";tl.style.left=(todayOffset*px)+"px";rgrid.appendChild(tl);
 
-  rows.forEach((t,i)=>{const[id,name,s,e,_,grp]=t;if(id==="0")return;
+  let offset=-1;
+  rows.forEach((t,i)=>{
+    const [id,name,s,e,_,grp]=t;
+    if(id==="0"){offset--;return;} // skip root bar
     const x=(diff(start,s))*px;
     const w=(diff(s,e)+1)*px;
-    const y=i*ROW_H+ROW_H/2;
+    const y=(i+offset)*ROW_H+ROW_H/2;
     const d=document.createElement("div");
     d.className="bar "+(grp?"group ":"normal ")+(done.has(id)?"done":"");
     d.style.left=x+"px";d.style.width=w+"px";d.style.top=y+"px";
@@ -174,17 +176,13 @@ function buildHeader(){
   const m=document.createElement("div");m.className="monthbar";m.style.width=width+"px";
   let c=P(start),last=P(end);
   while(c<=last){
-    const y=c.getFullYear(),mo=c.getMonth();
-    const next=new Date(y,mo+1,1);
-    const segDays=Math.min(diff(c.toISOString().slice(0,10),end)+1,30);
     const seg=document.createElement("div");
-    seg.className="seg";seg.style.width=(segDays*px)+"px";
+    seg.className="seg";seg.style.width=(30*px)+"px";
     seg.textContent=new Intl.DateTimeFormat('en',{month:'short',year:'2-digit'}).format(c);
-    m.appendChild(seg);c=next;
+    m.appendChild(seg);c=new Date(c.getFullYear(),c.getMonth()+1,1);
   }
   wrap.appendChild(m);
-  const s2=document.createElement("div");
-  s2.className="scale2";s2.style.width=width+"px";
+  const s2=document.createElement("div");s2.className="scale2";s2.style.width=width+"px";
   let d=new Date(start);
   for(let i=0;i<totalDays;i++){
     const cell=document.createElement("div");
@@ -193,8 +191,11 @@ function buildHeader(){
   }
   wrap.appendChild(s2);return wrap;
 }
+
 function hideTips(){document.querySelectorAll('.tooltip').forEach(n=>n.remove());}
-function showTip(ev,t){hideTips();const[id,name,s,e,_,grp]=t,dur=diff(s,e)+1;
+function showTip(ev,t){
+  hideTips();
+  const[id,name,s,e,_,grp]=t,dur=diff(s,e)+1;
   const tip=document.createElement("div");tip.className="tooltip";
   tip.innerHTML=`<strong>${name}</strong><br>📅 ${s} → ${e} (${dur} hari)<br>`+
   (grp?`<span class="small">Group task</span>`:`<button>${(done.has(id)?'Mark as Not Done':'Mark Done')}</button>`);
@@ -205,6 +206,7 @@ function showTip(ev,t){hideTips();const[id,name,s,e,_,grp]=t,dur=diff(s,e)+1;
   if(btn){btn.onclick=()=>{done.has(id)?done.delete(id):done.add(id);
     localStorage.setItem("kbb_done",JSON.stringify([...done]));render();};}
 }
+
 $("#search").addEventListener("input",e=>{QUERY=e.target.value;render();});
 document.querySelectorAll(".button-group .button").forEach(b=>b.addEventListener("click",()=>{
   document.querySelectorAll(".button-group .button").forEach(x=>x.classList.remove("active"));
