@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KBB Timeline — Final Root Alignment</title>
+<title>KBB Timeline — Row Perfect Alignment</title>
 <style>
 :root{
   --bg:#0a0a0a;--panel:#121212;--ink:#e5e5e5;--muted:#9ca3af;
@@ -31,7 +31,16 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robot
 .gantt{border:1px solid var(--border);border-radius:12px;overflow:auto;position:relative;min-height:460px;scroll-behavior:smooth}
 .table{display:grid;grid-template-columns:320px 1fr;min-width:980px}
 .left{position:sticky;left:0;background:#0f0f0f;border-right:1px solid var(--border);z-index:3}
-.lrow{padding:8px 10px;border-bottom:1px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow{
+  height:36px;
+  padding:0 10px;
+  display:flex;
+  align-items:center;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 .lrow.group{font-weight:700;color:var(--amber)}
 .right{position:relative}
 .rh{position:sticky;top:0;background:#0f0f0f;border-bottom:1px solid var(--border);z-index:2}
@@ -40,11 +49,24 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Robot
 .scale2{height:26px;color:#a1a1aa;border-bottom:1px solid #1f1f1f}
 .seg{display:flex;align-items:center;justify-content:flex-start;padding:0 8px;border-right:1px solid #1f1f1f}
 .rgrid{position:relative;margin-left:1px}
-.rrow{height:32px;border-bottom:1px dashed #1f1f1f}
+.rrow{height:36px;border-bottom:1px dashed #1f1f1f}
 
 /* Drawables */
 .tl{position:absolute;width:2px;background:var(--red);z-index:9999;pointer-events:none;box-shadow:0 0 0 1px rgba(239,68,68,.3),0 0 10px rgba(239,68,68,.35)}
-.bar{position:absolute;height:22px;border-radius:6px;transform:translateY(-50%);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;padding:0 6px;border:1px solid #3f3f46;z-index:5}
+.bar{
+  position:absolute;
+  height:24px;
+  border-radius:6px;
+  transform:translateY(-50%);
+  cursor:pointer;
+  font-size:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 6px;
+  border:1px solid #3f3f46;
+  z-index:5;
+}
 .bar.normal{background:linear-gradient(90deg,var(--blue1),var(--blue2));color:#e5e7eb;border-color:#415a9c}
 .bar.group{background:linear-gradient(90deg,#fbbf24,#f59e0b);color:#1f2937;border-color:rgba(251,191,36,.35)}
 .bar.done{background:linear-gradient(90deg,#34d399,#10b981);color:#053d2e;border-color:rgba(16,185,129,.45)}
@@ -127,7 +149,7 @@ const diff=(a,b)=>Math.round((P(b)-P(a))/86400000);
 const start=RAW.find(t=>t[0]==="0")[2], end=RAW.find(t=>t[0]==="0")[3];
 let done=new Set(JSON.parse(localStorage.getItem("kbb_done")||"[]"));
 let SCALE="day",QUERY="";
-const ROW_H=32,PX=()=>SCALE==="day"?30:(SCALE==="week"?10:4);
+const ROW_H=36,PX=()=>SCALE==="day"?30:(SCALE==="week"?10:4);
 
 function render(){
   const gantt=$("#gantt"); gantt.innerHTML="";
